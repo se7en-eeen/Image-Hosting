@@ -145,16 +145,18 @@ class IndexController extends Controller {
         $login_status = $this->loginCheck();
         $lucky_log_has = M("lucky_log")->where(array("user_id" => $login_status['user_id']))->find();
         if ($lucky_log_has) {
-            $lucky_log_time = $lucky_log_has['last_time'] >= strtotime(date("Y-m-d 00:00:00")) && $lucky_log_has['last_time'] <= strtotime(date("Y-m-d 23:59:59"));
-            if ($lucky_log_has['lucky_sum'] > 10 || $lucky_log_time || $lucky_log_has['last_time'] >= time() + (30 * 60)) $query = M("data")->where(array("id" => $lucky_log_has['lucky_id']))->select();
+            if ($lucky_log_has['lucky_sum'] > 10 || $lucky_log_has['last_time'] > time() - (30 * 60)) {
+                $query = M("data")->where(array("id" => $lucky_log_has['lucky_id']))->select();
+            }
         }
 
         if (!isset($query)) {
             $query = $this->lucky_random();
             if ($lucky_log_has) {
+                $lucky_log_reboot = $lucky_log_has['last_time'] >= strtotime(date("Y-m-d 00:00:00")) && $lucky_log_has['last_time'] <= strtotime(date("Y-m-d 23:59:59"));
+                $lucky_log_has['lucky_sum'] = ($lucky_log_reboot) ? $lucky_log_has['lucky_sum'] + 1 : 1;
                 $lucky_log_has['lucky_id'] = $query[0]['id'];
                 $lucky_log_has['last_time'] = time();
-                $lucky_log_has['lucky_sum'] = ($lucky_log_has['last_time'] < strtotime(date("Y-m-d 00:00:00"))) ? 1 : $lucky_log_has['lucky_sum'] + 1;
                 $lucky_result = M("lucky_log")->save($lucky_log_has);
             } else {
                 $lucky_result = M("lucky_log")->add(array(
@@ -166,14 +168,12 @@ class IndexController extends Controller {
             }
             if (!$lucky_result) $this->error("出错了", "Index/index");
         }
-
         $check_in = $this->checkInCheck($login_status['user_id']);
         $this->assign("file_list", $query);
         $this->assign("action_name", "lucky");
         $this->assign("title", "试试手气");
         $this->assign("check_in", $check_in);
         $this->display("Index/index");
-
     }
 
     public function lucky_random() {
