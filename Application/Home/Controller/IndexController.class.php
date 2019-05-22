@@ -148,6 +148,29 @@ class IndexController extends Controller {
         else {
             $login_status = $this->loginCheck();
             $check_in = M("check_in")->where(array("user_id" => $login_status['user_id'], "check_in_time" => array(array('egt', strtotime(date("Y-m-d 0:0:0"))), array('elt', strtotime(date("Y-m-d 23:59:59"))), 'and')))->find();
+
+            $lucky_log_has = M("lucky_log")->where(array("user_id" => $login_status['user_id']))->find();
+            if ($lucky_log_has['lucky_sum'] > 10) $this->error("次数到底上限");
+
+            $lucky_sum = 1;
+            if ($lucky_log_has) {
+                $lucky_log_has['last_time'] = time();
+                if ($lucky_log_has['last_time'] >= strtotime(date("Y-m-d 00:00:00")) && $lucky_log_has['last_time'] <= strtotime(date("Y-m-d 23:59:59"))) {
+                    $lucky_log_has['lucky_sum'] += 1;
+                } else {
+                    $lucky_log_has['lucky_sum'] = 1;
+                }
+                $lucky_result = M("lucky_log")->save($lucky_log_has);
+            } else {
+                $lucky_log = M("lucky_log")->add(array(
+                    "user_id" => $login_status['user_id'],
+                    "lucky_id" => $query['id'],
+                    "last_time" => time(),
+                    "lucky_sum" => $lucky_sum
+                ));
+                $lucky_result = M("lucky_log")->add($lucky_log);
+            }
+            if (!$lucky_result) $this->error("出错了", "Index/index");
             $this->assign("file_list", $query);
             $this->assign("action_name", "lucky");
             $this->assign("title", "试试手气");
