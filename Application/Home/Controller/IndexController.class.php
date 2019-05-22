@@ -154,7 +154,7 @@ class IndexController extends Controller {
             if ($lucky_log_has) {
                 $lucky_log_has['lucky_id'] = $query[0]['id'];
                 $lucky_log_has['last_time'] = time();
-                $lucky_log_has['lucky_sum'] += 1;
+                $lucky_log_has['lucky_sum'] = ($lucky_log_has['last_time'] < strtotime(date("Y-m-d 00:00:00"))) ? 1 : $lucky_log_has['lucky_sum'] + 1;
                 $lucky_result = M("lucky_log")->save($lucky_log_has);
             } else {
                 $lucky_result = M("lucky_log")->add(array(
