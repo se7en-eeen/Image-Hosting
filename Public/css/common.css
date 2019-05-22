@@ -1,0 +1,223 @@
+/*默认样式*/
+
+html,
+body,
+div,
+ul,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+dl,
+dt,
+dd,
+ol,
+form,
+input,
+textarea,
+th,
+td,
+select {
+	margin: 0;
+	padding: 0;
+}
+
+* {
+	box-sizing: border-box;
+	font-size: 14px;
+}
+
+html,
+body {
+	min-height: 100%;
+}
+html{
+   /*font-size:62.5%(10/16*100%)*/
+}
+body {
+	font-family: PingFangSC-Regular;
+	color: #333;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: normal;
+}
+
+ul,
+ol {
+	list-style: none;
+}
+
+img {
+	border: none;
+	vertical-align: middle;
+}
+
+a {
+	text-decoration: none;
+	color: #000;
+}
+a:link{
+	color: #000;
+}
+table {
+	border-collapse: collapse;
+	table-layout: automatic;
+}
+
+input,
+textarea {
+	outline: none;
+	border: none;
+}
+
+textarea {
+	resize: none;
+	overflow: auto;
+}
+
+input {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: none;
+	outline: none;
+}
+
+
+/*ie下子元素浮动时候父元素不随着自动扩大的问题*/
+
+.clearfix {
+	clear: both;
+	zoom: 1;
+}
+
+
+/*清除浮动*/
+
+.clearfix:after {
+	content: ".";
+	width: 0;
+	height: 0;
+	visibility: hidden;
+	display: block;
+	clear: both;
+	overflow: hidden;
+}
+
+.fl {
+	float: left
+}
+
+.fr {
+	float: right
+}
+
+.tl {
+	text-align: left;
+}
+
+.tc {
+	text-align: center;
+}
+
+.tr {
+	text-align: right;
+}
+
+.ellipse {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.inline {
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+}
+
+
+.pr {
+	position: relative
+}
+
+.pa {
+	position: absolute
+}
+
+.pf {
+	position: fixed
+}
+
+.none {
+	display: none
+}
+
+.wh18{
+	width: 18px;
+	height: 18px;
+}
+.wh25{
+	width: 25px;
+	height: 25px;
+}
+.wh22{
+	width: 22px;
+	height: 22px;
+}
+.wh20{
+	width: 20px;
+	height: 20px;
+}
+.wh50{
+	width: 50px;
+	height: 50px;
+}
+.wh15{
+	width: 15px;
+	height: 15px;
+}
+.wh40{
+	width: 40px;
+	height: 40px;
+}
+.wh30{
+	width: 30px;
+	height: 30px;
+}
+/*默认样式*/
+/*头部*/
+.header{
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    padding: 0px 10px;
+    box-sizing: border-box;
+    background-color: rgba(153, 51, 51, 1);
+    text-align: center;
+    position: fixed;
+    z-index: 99;
+    top: 0px;
+}
+.header-tittle {
+    font-size: 18px;
+    color: #ffffff;
+}
+.content{
+	padding-top: 50px;
+}
+.weui-tabbar__item.weui-bar__item_on .weui-tabbar__icon, .weui-tabbar__item.weui-bar__item_on .weui-tabbar__icon>i, .weui-tabbar__item.weui-bar__item_on .weui-tabbar__label {
+   color: #993333 !important;
+}

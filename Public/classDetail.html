@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>课程详情</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<link rel="stylesheet" href="__PUBLIC__/css/style.css" type="text/css">
+		<link rel="stylesheet" href="__PUBLIC__/css/common.css" />
+		<link rel="stylesheet" href="__PUBLIC__/css/weui.min.css" />
+		<script type="text/javascript" src="__PUBLIC__/js/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="__PUBLIC__/js/jquery-3.3.1.js"></script>
+		<script type="text/javascript" src="__PUBLIC__/js/weui.min.js"></script>
+		<script type="text/javascript" src="__PUBLIC__/js/vue.js"></script>
+		<style>
+			.head-box {
+				margin: 20px auto 0px auto;
+				text-align: center;
+			}
+			
+			.neirong p {
+				line-height: 20px;
+				color: white;
+				margin-bottom: 10px;
+			}
+			
+			.banner1 .fr {
+				float: right;
+				line-height: 50px;
+			}
+			.head-box {
+    
+    text-align: justify;
+}
+		</style>
+	</head>
+
+	<body>
+		<div class="bgcmy"></div>
+		<div id="app" v-cloak>
+
+			<!--背景一-->
+			<div class="banner1">
+				<div class="banner1-content">
+					<p v-html="detail.title"></p>
+					<div class="wen">
+						<div class="span" style="line-height: 50px;" v-html="detail.start_area"></div>
+						<div class="span fr">
+							<div class="data" v-html="detail.start_time">2019年</div>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+					<!--<div class="wen">
+						<p></p>
+						<div class="span fr">
+							<div class="data"  v-html="detail.start_time">2019年</div>
+						</div>
+						<div class="clearfix"></div>
+					</div>-->
+				</div>
+			</div>
+			<!--背景一-->
+			<!--背景二-->
+			<div class="banner2">
+				<div class="banner2-content">
+					<p v-html="detail.introduction"></p>
+					<!--<p>万亿量级的市场先行一步？</p>
+					<p>教你系统打造核心竞争力！</p>-->
+				</div>
+			</div>
+			<!--背景二-->
+			<!--背景三-->
+
+			<!--课程背景-->
+			<div class="xiangqing-box" style="height: auto;">
+				<div class="title">课程背景</div>
+				<div class="neirong">
+					<p v-html="detail.background"></p>
+				</div>
+			</div>
+			<!--课程背景-->
+			<!--课程主题-->
+			<div class="xiangqing-box banner3" style="height: auto;">
+				<div class="title">课程主题</div>
+				<div class="neirong">
+					<p v-html="detail.zhuti"></p>
+				</div>
+			</div>
+			<!--课程主题-->
+			<!--目标学员-->
+			<div class="banner4" style="height: auto;">
+				<div class="title">目标学员</div>
+				<div class="neirong">
+					<p v-html="detail.target_people"></p>
+				</div>
+			</div>
+			<!--目标学员-->
+			<!--课程亮点-->
+			<div class="banner5" style="height: auto;">
+				<div class="title">课程亮点</div>
+				<div class="neirong" v-for="(item,index) in lesson_trait">
+					<p class="yellow" v-html="item.title"></p>
+					<p v-html="item.content"></p>
+				</div>
+			</div>
+			<!--课程亮点-->
+			<!--名师“亦”友-->
+			<div class="banner6" style="height: auto;">
+				<div class="title">名师“亦”友</div>
+				<div class="head-box" v-for="(item,index) in list">
+					<!--<img :src=item.teacher_profile_photo class="head" />
+					<span  v-html="item.teacher_name"></span>-->
+					<div class="neirong">
+						<p v-html="item.teacher_introduction"></p>
+					</div>
+				</div>
+
+			</div>
+			<!--名师“亦”友-->
+			<!--课程大纲-->
+			<div class="banner7" style="height: auto;">
+				<div class="title">课程大纲</div>
+				<div class="neirong" v-for="(item,index) in lesson_outline">
+					<div class="title1" v-html="item.title"></div>
+					<p v-html="item.content"></p>
+				</div>
+			</div>
+			<!--课程大纲-->
+			<!--购买须知-->
+			<div class="xiangqing-box" style="height: auto;">
+				<div class="title">购买须知</div>
+				<div class="neirong">
+					<p v-html="detail.purchase_notes"></p>
+				</div>
+			</div>
+			<!--购买须知-->
+			<!--优惠措施-->
+			<div class="xiangqing-box" style="height: auto;">
+				<div class="title">优惠措施</div>
+				<div class="neirong">
+					<p v-html="detail.youhui"></p>
+				</div>
+			</div>
+			<!--优惠措施-->
+			<!--咨询方式-->
+			<div class="xiangqing-box" style="padding-bottom: 80px;" style="height: auto;">
+				<div class="title">咨询方式</div>
+				<div class="neirong">
+					<p v-html="detail.zixun"></p>
+				</div>
+			</div>
+			<!--咨询方式-->
+			<div class="zhaopin" v-on:click="pay(detail.lesson_id)">
+				<!--立即购买￥{{detail.price}}-->
+				我要报名
+			</div>
+		</div>
+	</body>
+	<script>
+		new Vue({
+			el: "#app",
+			data: {
+				id: '',
+				shuju: {},
+				detail: {},
+				list: [],
+				lesson_trait: [],
+				lesson_outline: [],
+				token: '',
+				order_id: '',
+				token: '',
+				nickname: '',
+				profile_photo: '',
+				code:''
+			},
+			created: function() {
+				var that = this
+				that.token = sessionStorage.getItem("token")
+				that.shuju = that.GetRequest()
+				that.code = that.shuju.code
+				console.log(JSON.stringify(that.shuju))
+				that.id = that.shuju.id
+				that.onload()
+				that.get()
+			},
+			methods: {
+				
+				get: function() {
+					var that = this
+					$.ajax({
+						type: 'POST',
+						url: 'http://looklesson.txunda.com/Official/Index/OfficialLogin',
+						//						contentType: 'application/json',
+						//						header: {
+						//							'content-type': 'application/x-www-form-urlencoded'
+						//						},
+						data: {
+							code: that.code,
+						},
+						success: function(res) {
+							console.log(JSON.stringify(res))
+							that.token = res.data.token
+							that.profile_photo = res.data.profile_photo
+							console.log(res.data.token)
+							sessionStorage.setItem("token", res.data.token);
+							sessionStorage.setItem("profile_photo", res.data.profile_photo);
+							sessionStorage.setItem("nickname", res.data.nickname);
+
+							that.nickname = res.data.nickname
+							that.get = false
+						},
+						error: function(res) {
+							console.log(JSON.stringify(res))
+							that.get = false
+						}
+					});
+				},
+				GetRequest: function() {
+					var url = location.search; //获取url中"?"符后的字串   
+					var theRequest = new Object();
+					if(url.indexOf("?") != -1) {
+						var str = url.substr(1);
+						strs = str.split("&");
+						for(var i = 0; i < strs.length; i++) {
+							theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+						}
+					}
+					return theRequest;
+				},
+				pay: function(id) {
+					var that = this;
+					$.ajax({
+						type: 'POST',
+						url: 'http://looklesson.txunda.com/Official/Index/buyLesson',
+						//						contentType: 'application/json',
+						data: {
+							token: that.token,
+							lesson_id: id,
+							pay_type: 1,
+							coupon_id: ''
+						},
+						//						header: {
+						//							'content-type': 'application/x-www-form-urlencoded'
+						//						},
+						success: function(res) {
+							console.log(JSON.stringify(res))
+							if(res.code == 1) {
+								that.order_id = res.data.order_id
+								window.location.href = 'http://www.guandianjiaoyu.com/Home/Index/comfirm?order_id=10'
+							} else {
+
+							}
+
+						},
+						error: function(res) {
+							console.log(JSON.stringify(res))
+						}
+					});
+				},
+				onload: function() {
+					var that = this;
+					$.ajax({
+						type: 'GET',
+						url: 'http://looklesson.txunda.com/Official/Index/viewLesson/lesson_id/' + that.id,
+						contentType: 'application/json',
+						header: {
+							'content-type': 'application/x-www-form-urlencoded'
+						},
+						success: function(res) {
+							console.log(res.data)
+							console.log(JSON.stringify(res.data))
+							if(res.code == 1) {
+								that.detail = res.data
+								that.list = res.data.teacher
+								that.lesson_trait = JSON.parse(res.data.lesson_trait) //课程亮点
+								that.lesson_outline = JSON.parse(res.data.lesson_outline) //课程大纲
+								console.log(that.lesson_trait)
+								console.log(that.lesson_outline)
+
+							} else {
+
+							}
+
+						},
+						error: function(res) {
+							console.log(JSON.stringify(res))
+						}
+					});
+
+				},
+
+				ready: function() {
+
+				}
+
+			}
+
+		});
+	</script>
+
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>顺心图床ヽ( ° ▽°)ノ - {$title}</title>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="__PUBLIC__/css/amaran.min.css">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.5/umd/popper.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="__PUBLIC__/js/clipboard.min.js"></script>
+    <script src="__PUBLIC__/js/jquery.amaran.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <table class="table table-bordered" style="margin-top: 2em;">
+        <tbody style="text-align: center;">
+        <tr>
+            <th colspan="3"><span>{$title}</span></th>
+        </tr>
+        <tr>
+            <th colspan="3">
+                <form action="{:U('Index/upload')}" method="post" class="form-inline" enctype="multipart/form-data">
+                    <div style="margin: 0 auto; display: block; width: auto;">
+                        <input type="file" name="photo" style="display: none;" id="file-photo">
+                        <input type="hidden" name="img_status" value="1" id="img-status">
+                        <button type="button" class="btn btn-info" id="upload-button">选择文件</button>&nbsp;
+                        <button type="button" class="btn btn-dark" onclick="setShare(this)">设为共享</button>&nbsp;
+                        <button type="submit" class="btn btn-primary">上传</button>
+                    </div>
+                </form>
+            </th>
+        </tr>
+        <tr>
+            <th colspan="3">
+                <div class="container">
+                    <div class="btn-group">
+                        <if condition="$action_name eq 'publicImg'">
+                            <a href="{:U('Index/index')}">
+                                <button type="button" class="btn btn-outline-primary">返回首页</button>
+                            </a>
+                            <else/>
+                            <a href="{:U('Index/publicImg')}">
+                                <button type="button" class="btn btn-outline-success">查看共享文件</button>
+                            </a>
+                        </if>&nbsp;
+                        <if condition="$action_name eq 'lucky'">
+                            <a href="{:U('Index/index')}">
+                                <button type="button" class="btn btn-outline-primary">返回首页</button>
+                            </a>
+                            <else/>
+                            <a href="{:U('Index/lucky')}">
+                                <button type="button" class="btn btn-outline-dark" data-toggle="tooltip"
+                                        data-placement="top" title="冷却时间: 1800秒">试试手气
+                                </button>
+                            </a>&nbsp;
+                        </if>&nbsp;
+                        <div>
+                            <if condition="$check_in eq 1">
+                                <button type="button" class="btn btn-info disabled">已签到</button>
+                                <else/>
+                                <button type="button" class="btn btn-outline-info" onclick="checkIn(this)">签到</button>
+                            </if>
+                        </div>
+                    </div>
+                </div>
+            </th>
+        </tr>
+        <empty name="file_list">
+            <tr>
+                <td rowspan="3">
+                    <span>暂无文件</span>
+                </td>
+            </tr>
+            <else/>
+
+            <tr>
+                <th>
+                    <span>图片地址</span>
+                </th>
+                <th>
+                    <span>上传时间</span>
+                </th>
+                <th>
+                    <span>操作处理</span>
+                </th>
+            </tr>
+            <volist name="file_list" id="file">
+                <tr>
+                    <td>
+                        <a href="{$file.img_path}">{$file.img_path}</a>&nbsp;
+                        <button type="button" class="btn" data-clipboard-text='{:C("URL")}{$file.img_path}'>复制链接
+                        </button>
+                    </td>
+                    <td>
+                        <span>{$file.img_upload_time|date='Y-m-d H:i:s',###}</span>
+                    </td>
+                    <td>
+                        <button type="button" data-id="{$file.id}" data-status="{$file.img_status}"
+                                onclick="updateStatus(this)"
+                        <if condition="$file.img_status eq 1">
+                            class="btn btn-dark">私有文件
+                            <else/>
+                            class="btn btn-secondary">共享文件
+                        </if>
+                        </button>
+                        <button type="button" class="btn btn-danger" data-id="{$file.id}" onclick="deleteImg(this)">删除
+                        </button>
+                    </td>
+                </tr>
+            </volist>
+        </empty>
+        </tbody>
+    </table>
+    <div style="display: block; float: right;">{$page}</div>
+</div>
+<script>
+    let clipboard = new Clipboard('.btn');
+    clipboard.on('success', function (e) {
+        $.amaran({
+            content: {
+                bgcolor: '#27ae60',
+                color: '#fff',
+                message: 'copy success'
+            },
+            theme: 'colorful',
+            // position: "top right",
+        });
+    });
+
+    clipboard.on('error', function (e) {
+        $.amaran({
+            content: {
+                bgcolor: '#ae3f46',
+                color: '#fff',
+                message: 'copy error'
+            },
+            theme: 'colorful'
+        });
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    $("#upload-button").click(function () {
+        $("#file-photo").click();
+    });
+
+    $("#file-photo").change(function () {
+        let file = $(this).val();
+        let pos = file.lastIndexOf("\\");
+        let filename = file.substring(pos + 1);
+        // var fileextname = filename.substring(filename.lastIndexOf("."), filename.length);
+        $("#upload-button").html(filename);
+    });
+
+    function setShare(obj) {
+        let img_status_obj = $("#img-status");
+        let img_status = img_status_obj.val();
+        let class_data = "";
+        let btn_text = "";
+        if (img_status === "1") {
+            img_status = "0";
+            class_data = "btn btn-secondary";
+            btn_text = "设为私有";
+        } else {
+            img_status = "1";
+            class_data = "btn btn-dark";
+            btn_text = "设为共享";
+        }
+        img_status_obj.val(img_status);
+        $(obj).attr("class", class_data);
+        $(obj).html(btn_text);
+    }
+
+    function updateStatus(obj) {
+        let id = $(obj).attr("data-id");
+        let status = $(obj).attr("data-status");
+        let status_bool = status == 1;
+        $.ajax({
+            url: '{:U("Index/updateStatus")}',
+            type: "POST",
+            data: {id: id, status: status},
+            success: function (result) {
+                if (result !== false) {
+                    $(obj).attr("class", (status_bool) ? "btn btn-secondary" : "btn btn-dark");
+                    $(obj).attr("data-status", (status_bool) ? 0 : 1);
+                    $(obj).html((status_bool) ? "共享文件" : "私有文件")
+                }
+            }
+        });
+    }
+
+    function deleteImg(obj) {
+        if (confirm("确认删除吗")) {
+            $.ajax({
+                url: '{:U("Index/deleteImg")}',
+                type: "POST",
+                data: {id: $(obj).attr("data-id")},
+                success: function (result) {
+                    let color = "";
+                    let msg = "";
+                    if (result === 1) {
+                        $(obj).parent().parent().hide(300);
+                        color = "#27ae60";
+                        msg = "delete success";
+                    } else {
+                        color = "#ae3f46";
+                        msg = "delete error";
+                    }
+                    $.amaran({
+                        content: {
+                            bgcolor: color,
+                            color: '#fff',
+                            message: msg
+                        },
+                        theme: 'colorful'
+                    });
+                }
+            });
+        }
+    }
+
+    function checkIn(obj) {
+        $.ajax({
+            url: "{:U('Index/checkIn')}",
+            success: function (result) {
+                console.log(result);
+                let color = "";
+                let msg = "";
+                if (result['code'] === 1) {
+                    color = "#27ae60";
+                    msg = result['msg'];
+                    $(obj).attr("class", "btn btn-info disabled");
+                    $(obj).removeAttr("onclick");
+                    $(obj).html("已签到");
+                } else {
+                    color = "#ae3f46";
+                    msg = result['msg'];
+                }
+                $.amaran({
+                    content: {
+                        bgcolor: color,
+                        color: '#fff',
+                        message: msg
+                    },
+                    theme: 'colorful'
+                });
+            }
+        })
+    }
+</script>
+</body>
+</html>
