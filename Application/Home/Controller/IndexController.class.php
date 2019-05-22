@@ -146,12 +146,10 @@ class IndexController extends Controller {
         $lucky_log_has = M("lucky_log")->where(array("user_id" => $login_status['user_id']))->find();
         if ($lucky_log_has) {
             $lucky_log_time = $lucky_log_has['last_time'] >= strtotime(date("Y-m-d 00:00:00")) && $lucky_log_has['last_time'] <= strtotime(date("Y-m-d 23:59:59"));
-            if ($lucky_log_has['lucky_sum'] > 10 || $lucky_log_time || $lucky_log_has['last_time'] < time() + (30 * 60)) {
-                $query = M("data")->where(array("id" => $lucky_log_has['lucky_id']))->select();
-            }
+            if ($lucky_log_has['lucky_sum'] > 10 || $lucky_log_time || $lucky_log_has['last_time'] >= time() + (30 * 60)) $query = M("data")->where(array("id" => $lucky_log_has['lucky_id']))->select();
         }
 
-        if (!isset($query)){
+        if (!isset($query)) {
             $query = $this->lucky_random();
             if ($lucky_log_has) {
                 $lucky_log_has['lucky_id'] = $query[0]['id'];
