@@ -44,7 +44,7 @@ class IndexController extends Controller {
             "password" => md5($post_data['password']),
             "token" => md5($post_data['username'] . get_client_ip() . NOW_TIME),
             "login_ip" => get_client_ip(),
-            "login_time" => NOW_TIME,
+            "login_time" => date("Y-m-d H:i:s"),
             "status" => 1,
         );
         $insert_result = M("user")->add($insert_data);
@@ -62,7 +62,7 @@ class IndexController extends Controller {
             $select_result = M("user")->where($where_data)->find();
             if ($select_result) {
                 cookie("user", json_encode(array("username" => $get_data['username'], "token" => $select_result['token'])));
-                $update_data = array("login_time" => time());
+                $update_data = array("login_time" => date("Y-m-d H:i:s"));
                 if ($select_result['login_ip'] != get_client_ip()) $update_data['login_ip'] = get_client_ip();
                 M("user")->where(array("id" => $select_result['id']))->save($update_data);
                 $this->redirect("Index/index");
@@ -83,7 +83,7 @@ class IndexController extends Controller {
                 "img_user" => 1,
                 "img_path" => $img_upload_result["img_path"],
                 "img_status" => I("post.img_status"),
-                "img_upload_time" => NOW_TIME,
+                "img_upload_time" => date("Y-m-d H:i:s"),
                 "img_upload_ip" => get_client_ip()
             );
             $insert_result = M("data")->add($insert_data);
@@ -125,7 +125,7 @@ class IndexController extends Controller {
     }
 
     public function checkInCheck($user_id) {
-        $check_in = M("check_in")->where(array("user_id" => $user_id, "check_in_time" => array(array('egt', strtotime(date("Y-m-d 0:0:0"))), array('elt', strtotime(date("Y-m-d 23:59:59"))), 'and')))->find();
+        $check_in = M("check_in")->where(array("user_id" => $user_id, "check_in_time" => array(array('egt', date("Y-m-d 0:0:0")), array('elt', date("Y-m-d 23:59:59")), 'and')))->find();
         return ($check_in) ? 1 : 0;
     }
 
@@ -145,7 +145,7 @@ class IndexController extends Controller {
         $login_status = $this->loginCheck();
         $lucky_log_has = M("lucky_log")->where(array("user_id" => $login_status['user_id']))->find();
         if ($lucky_log_has) {
-            if ($lucky_log_has['lucky_sum'] > 10 || $lucky_log_has['last_time'] > time() - (30 * 60)) {
+            if ($lucky_log_has['lucky_sum'] > 10 || $lucky_log_has['last_time'] > date("Y-m-d H:i:s", strtotime("-30 minute"))) {
                 $query = M("data")->where(array("id" => $lucky_log_has['lucky_id']))->select();
             }
         }
@@ -153,16 +153,16 @@ class IndexController extends Controller {
         if (!isset($query)) {
             $query = $this->lucky_random();
             if ($lucky_log_has) {
-                $lucky_log_reboot = $lucky_log_has['last_time'] >= strtotime(date("Y-m-d 00:00:00")) && $lucky_log_has['last_time'] <= strtotime(date("Y-m-d 23:59:59"));
+                $lucky_log_reboot = $lucky_log_has['last_time'] >= date("Y-m-d 00:00:00") && $lucky_log_has['last_time'] <= date("Y-m-d 23:59:59");
                 $lucky_log_has['lucky_sum'] = ($lucky_log_reboot) ? $lucky_log_has['lucky_sum'] + 1 : 1;
                 $lucky_log_has['lucky_id'] = $query[0]['id'];
-                $lucky_log_has['last_time'] = time();
+                $lucky_log_has['last_time'] = date("Y-m-d H:i:s");
                 $lucky_result = M("lucky_log")->save($lucky_log_has);
             } else {
                 $lucky_result = M("lucky_log")->add(array(
                     "user_id" => $login_status['user_id'],
                     "lucky_id" => $query[0]['id'],
-                    "last_time" => time(),
+                    "last_time" => date("Y-m-d H:i:s"),
                     "lucky_sum" => 1
                 ));
             }
@@ -190,13 +190,13 @@ class IndexController extends Controller {
         if ($login_status['code'] == 1) {
             $where = array(
                 "user_id" => $login_status['user_id'],
-                "check_in_time" => array(array('egt', strtotime(date("Y-m-d 0:0:0"))), array('elt', strtotime(date("Y-m-d 23:59:59"))), 'and')
+                "check_in_time" => array(array('egt', date("Y-m-d 0:0:0")), array('elt', date("Y-m-d 23:59:59")), 'and')
             );
             $check_in_log = M("check_in")->where($where)->find();
             if (empty($check_in_log)) {
                 $insert_data = array(
                     "user_id" => $login_status['user_id'],
-                    "check_in_time" => NOW_TIME
+                    "check_in_time" => date("Y-m-d H:i:s")
                 );
                 $insert_result = M("check_in")->data($insert_data)->add();
                 if ($insert_result != false) $check_in_result = array("code" => 1, "msg" => "check in success");
